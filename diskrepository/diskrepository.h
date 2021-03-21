@@ -32,7 +32,7 @@ public:
         }
 
         int fd = ::fileno(file);
-        if (::fallocate(fd, 0, 0, bufferCapacity) == -1)
+        if (::ftruncate(fd, bufferCapacity) == -1)
         {
             return std::make_error_code(static_cast<std::errc>(errno));
         }
@@ -68,8 +68,6 @@ public:
             {
                 return std::make_error_code(static_cast<std::errc>(errno));
             }
-
-            fileWriteOffset = ::lseek(backupFile, 0, SEEK_END);
         }
 
         return std::error_code();
@@ -207,7 +205,6 @@ public:
         bufferSize = 0;
         writeOffset = 0;
         readOffset = 0;
-        fileWriteOffset = 0;
         writeBackBuffer.clear();
     }
 
@@ -364,7 +361,6 @@ private:
             return std::make_error_code(static_cast<std::errc>(errno));
         }
 
-        fileWriteOffset += sizeof(size_t) + bytesWritten;
         return std::error_code();
     }
 
@@ -372,7 +368,7 @@ private:
     std::error_code refillImpl(char *ptr, size_t size)
     {
         off_t offset = sizeof(size_t) + size;
-        offset = ::lseek(backupFile, -offset, SEEK_END);
+        off_t fileReadOffset = ::lseek(backupFile, -offset, SEEK_END);
         size_t bytesRead{0};
 
         do
@@ -385,7 +381,11 @@ private:
             bytesRead += bytes;
         } while (bytesRead < size);
 
-        writeOffset = offset;
+        if (::ftruncate(backupFile, fileReadOffset) == -1)
+        {
+            return std::make_error_code(static_cast<std::errc>(errno));
+        }
+
         return std::error_code();
     }
 
@@ -400,7 +400,5 @@ private:
     char *buffer{nullptr};
 
     int backupFile{-1};
-    size_t fileWriteOffset{0};
-
     std::string writeBackBuffer;
 };
