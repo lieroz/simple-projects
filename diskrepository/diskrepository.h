@@ -16,8 +16,7 @@ public:
     DiskRepository(std::filesystem::path _filename, size_t size) noexcept
         : filename(_filename), pageSize(getpagesize())
     {
-        capacity = ((size / pageSize) + 1) * pageSize;
-        writeBackBuffer.resize(capacity);
+        bufferCapacity = ((size / pageSize) + 1) * pageSize;
         writeBackBuffer.clear();
     }
 
@@ -33,26 +32,26 @@ public:
         }
 
         int fd = ::fileno(file);
-        if (::fallocate(fd, 0, 0, capacity) == -1)
+        if (::fallocate(fd, 0, 0, bufferCapacity) == -1)
         {
             return std::make_error_code(static_cast<std::errc>(errno));
         }
 
-        if (buffer = static_cast<uint8_t *>(
-                ::mmap(nullptr, capacity << 1, PROT_NONE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0));
+        if (buffer = static_cast<char *>(::mmap(
+                nullptr, bufferCapacity << 1, PROT_NONE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0));
             buffer == MAP_FAILED)
         {
             return std::make_error_code(static_cast<std::errc>(errno));
         }
 
-        if (::mmap(buffer, capacity, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_FIXED, fd, 0) ==
+        if (::mmap(buffer, bufferCapacity, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_FIXED, fd, 0) ==
             MAP_FAILED)
         {
             return std::make_error_code(static_cast<std::errc>(errno));
         }
 
-        if (mmap(buffer + capacity, capacity, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_FIXED, fd,
-                0) == MAP_FAILED)
+        if (mmap(buffer + bufferCapacity, bufferCapacity, PROT_READ | PROT_WRITE,
+                MAP_SHARED | MAP_FIXED, fd, 0) == MAP_FAILED)
         {
             return std::make_error_code(static_cast<std::errc>(errno));
         }
@@ -78,7 +77,7 @@ public:
 
     [[nodiscard]] std::error_code close() noexcept
     {
-        if (::munmap(buffer, capacity << 1) == -1)
+        if (::munmap(buffer, bufferCapacity << 1) == -1)
         {
             return std::make_error_code(static_cast<std::errc>(errno));
         }
@@ -132,30 +131,88 @@ public:
         return ok;
     }
 
+    template<typename = std::enable_if_t<UseDisk == true>>
     [[nodiscard]] std::error_code flush() noexcept
     {
         auto ec = flushImpl(buffer + readOffset, bufferSize);
         if (!ec)
         {
-            commit();
+            bufferSize = 0;
+            writeOffset = 0;
+            readOffset = 0;
         }
         return ec;
     }
 
+    template<typename = std::enable_if_t<UseDisk == true>>
     [[nodiscard]] std::error_code flush(const Args &...args) noexcept
     {
         size_t offset{0};
         (fillWriteBackBuffer(args, offset), ...);
-        auto ec = flushImpl(reinterpret_cast<uint8_t *>(writeBackBuffer.data()), offset);
+        auto ec = flushImpl(writeBackBuffer.data(), offset);
         writeBackBuffer.clear();
         return ec;
     }
 
-    void commit() noexcept
+    template<typename = std::enable_if_t<UseDisk == true>>
+    std::pair<std::error_code, size_t> tellDataSize() noexcept
+    {
+        if (backupFile == -1)
+        {
+            return {std::make_error_code(std::errc::bad_file_descriptor), 0};
+        }
+
+        size_t size{0};
+        ::lseek(backupFile, 0, SEEK_SET);
+
+        if (::read(backupFile, reinterpret_cast<char *>(&size), sizeof(size_t)) == -1)
+        {
+            return {std::make_error_code(static_cast<std::errc>(errno)), 0};
+        }
+
+        return {std::error_code(), size};
+    }
+
+    template<typename = std::enable_if_t<UseDisk == true>>
+    [[nodiscard]] std::error_code refill(size_t size) noexcept
+    {
+        auto ec = refillImpl(buffer, size);
+        if (!ec)
+        {
+            bufferSize = size;
+            writeOffset = size;
+            readOffset = 0;
+        }
+        return ec;
+    }
+
+    template<typename = std::enable_if_t<UseDisk == true>>
+    [[nodiscard]] std::error_code refill(size_t size, Args &...args) noexcept
+    {
+        if (size > writeBackBuffer.capacity())
+        {
+            writeBackBuffer.resize(((size / pageSize) + 1) * pageSize);
+        }
+
+        auto ec = refillImpl(writeBackBuffer.data(), size);
+        size_t offset{0};
+        (dryWriteBackBuffer(args, offset), ...);
+        writeBackBuffer.clear();
+        return ec;
+    }
+
+    void reset() noexcept
     {
         bufferSize = 0;
         writeOffset = 0;
         readOffset = 0;
+        fileWriteOffset = 0;
+        writeBackBuffer.clear();
+    }
+
+    size_t capacity() const noexcept
+    {
+        return bufferCapacity;
     }
 
 private:
@@ -163,14 +220,14 @@ private:
     [[nodiscard]] bool pushImpl(const T &value, size_t &offset, size_t &size) noexcept
     {
         size_t typeSize = sizeof(T);
-        if (size + typeSize > capacity)
+        if (size + typeSize > bufferCapacity)
         {
             return false;
         }
 
-        const uint8_t *ptr = reinterpret_cast<const uint8_t *>(&value);
+        const char *ptr = reinterpret_cast<const char *>(&value);
         std::copy(ptr, ptr + typeSize, buffer + offset);
-        offset = (offset + typeSize) % capacity;
+        offset = (offset + typeSize) % bufferCapacity;
         size += typeSize;
         return true;
     }
@@ -183,13 +240,13 @@ private:
             return false;
         }
 
-        if (size + length > capacity)
+        if (size + length > bufferCapacity)
         {
             return false;
         }
 
         std::copy(value.begin(), value.end(), buffer + offset);
-        offset = (offset + length) % capacity;
+        offset = (offset + length) % bufferCapacity;
         size += length;
         return true;
     }
@@ -203,9 +260,9 @@ private:
             return false;
         }
 
-        const uint8_t *ptr = buffer + offset;
-        std::copy(ptr, ptr + typeSize, reinterpret_cast<uint8_t *>(&value));
-        offset = (offset + typeSize) % capacity;
+        const char *ptr = buffer + offset;
+        std::copy(ptr, ptr + typeSize, reinterpret_cast<char *>(&value));
+        offset = (offset + typeSize) % bufferCapacity;
         size -= typeSize;
         return true;
     }
@@ -224,9 +281,9 @@ private:
         }
 
         value.resize(length);
-        const uint8_t *ptr = buffer + offset;
+        const char *ptr = buffer + offset;
         std::copy(ptr, ptr + length, value.begin());
-        offset = (offset + length) % capacity;
+        offset = (offset + length) % bufferCapacity;
         size -= length;
         return true;
     }
@@ -259,16 +316,37 @@ private:
         offset += value.size();
     }
 
+    template<typename T, typename = std::enable_if_t<UseDisk == true>>
+    void dryWriteBackBuffer(T &value, size_t &offset)
+    {
+        auto begin = writeBackBuffer.begin() + offset;
+        std::copy(begin, begin + sizeof(T), reinterpret_cast<char *>(&value));
+        offset += sizeof(T);
+    }
+
     template<typename = std::enable_if_t<UseDisk == true>>
-    std::error_code flushImpl(const uint8_t *ptr, size_t size) noexcept
+    void dryWriteBackBuffer(std::string &value, size_t &offset)
+    {
+        size_t size{0};
+        dryWriteBackBuffer(size, offset);
+
+        value.resize(size);
+        auto begin = writeBackBuffer.begin() + offset;
+        std::copy(begin, begin + size, value.begin());
+        offset += value.size();
+    }
+
+    template<typename = std::enable_if_t<UseDisk == true>>
+    std::error_code flushImpl(const char *ptr, size_t size) noexcept
     {
         if (backupFile == -1)
         {
             return std::make_error_code(std::errc::bad_file_descriptor);
         }
 
+        // TODO: maybe writev here?
         ::lseek(backupFile, fileWriteOffset, SEEK_SET);
-        if (::write(backupFile, reinterpret_cast<uint8_t *>(&size), sizeof(size_t)) == -1)
+        if (::write(backupFile, reinterpret_cast<char *>(&size), sizeof(size_t)) == -1)
         {
             return std::make_error_code(static_cast<std::errc>(errno));
         }
@@ -289,11 +367,23 @@ private:
     }
 
     template<typename = std::enable_if_t<UseDisk == true>>
-    std::error_code refillImpl() noexcept
+    std::error_code refillImpl(char *ptr, size_t size)
     {
-        if (backupFile == -1)
+        size_t bytesRead{0};
+        do
         {
-            return std::make_error_code(std::errc::bad_file_descriptor);
+            ssize_t bytes = ::read(backupFile, ptr, size);
+            if (bytes == -1)
+            {
+                return std::make_error_code(static_cast<std::errc>(errno));
+            }
+            bytesRead += bytes;
+        } while (bytesRead < size);
+
+        // TODO: fix me, bytesRead maybe not multiple of file block size
+        if (::fallocate(backupFile, FALLOC_FL_COLLAPSE_RANGE, 0, bytesRead) == -1)
+        {
+            return std::make_error_code(static_cast<std::errc>(errno));
         }
 
         return std::error_code();
@@ -303,11 +393,11 @@ private:
     std::filesystem::path filename;
     size_t pageSize{0};
 
-    size_t capacity{0};
+    size_t bufferCapacity{0};
     size_t bufferSize{0};
     size_t writeOffset{0};
     size_t readOffset{0};
-    uint8_t *buffer{nullptr};
+    char *buffer{nullptr};
 
     int backupFile{-1};
     size_t fileWriteOffset{0};
