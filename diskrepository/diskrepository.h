@@ -69,6 +69,8 @@ public:
             {
                 return std::make_error_code(static_cast<std::errc>(errno));
             }
+
+            fileWriteOffset = ::lseek(backupFile, 0, SEEK_END);
         }
 
         return std::error_code();
@@ -265,20 +267,24 @@ private:
             return std::make_error_code(std::errc::bad_file_descriptor);
         }
 
-        ssize_t bytesWritten{0};
-        ::lseek(backupFile, 0, SEEK_END);
+        ::lseek(backupFile, fileWriteOffset, SEEK_SET);
+        if (::write(backupFile, reinterpret_cast<uint8_t *>(&size), sizeof(size_t)) == -1)
+        {
+            return std::make_error_code(static_cast<std::errc>(errno));
+        }
 
+        size_t bytesWritten{0};
         do
         {
             ssize_t bytes = ::write(backupFile, ptr + bytesWritten, size - bytesWritten);
             if (bytes == -1)
             {
-                ::lseek(backupFile, -bytesWritten, SEEK_CUR);
                 return std::make_error_code(static_cast<std::errc>(errno));
             }
             bytesWritten += bytes;
-        } while (static_cast<size_t>(bytesWritten) < size);
+        } while (bytesWritten < size);
 
+        fileWriteOffset += sizeof(size_t) + bytesWritten;
         return std::error_code();
     }
 
@@ -296,11 +302,15 @@ private:
 private:
     std::filesystem::path filename;
     size_t pageSize{0};
+
     size_t capacity{0};
     size_t bufferSize{0};
     size_t writeOffset{0};
     size_t readOffset{0};
     uint8_t *buffer{nullptr};
+
     int backupFile{-1};
+    size_t fileWriteOffset{0};
+
     std::string writeBackBuffer;
 };
