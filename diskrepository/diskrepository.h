@@ -163,7 +163,8 @@ public:
         }
 
         size_t size{0};
-        ::lseek(backupFile, 0, SEEK_SET);
+        off_t offset = sizeof(size_t);
+        ::lseek(backupFile, -offset, SEEK_END);
 
         if (::read(backupFile, reinterpret_cast<char *>(&size), sizeof(size_t)) == -1)
         {
@@ -344,14 +345,10 @@ private:
             return std::make_error_code(std::errc::bad_file_descriptor);
         }
 
-        // TODO: maybe writev here?
-        ::lseek(backupFile, fileWriteOffset, SEEK_SET);
-        if (::write(backupFile, reinterpret_cast<char *>(&size), sizeof(size_t)) == -1)
-        {
-            return std::make_error_code(static_cast<std::errc>(errno));
-        }
-
+        ::lseek(backupFile, 0, SEEK_END);
         size_t bytesWritten{0};
+
+        // TODO: maybe writev here?
         do
         {
             ssize_t bytes = ::write(backupFile, ptr + bytesWritten, size - bytesWritten);
@@ -362,6 +359,11 @@ private:
             bytesWritten += bytes;
         } while (bytesWritten < size);
 
+        if (::write(backupFile, reinterpret_cast<char *>(&size), sizeof(size_t)) == -1)
+        {
+            return std::make_error_code(static_cast<std::errc>(errno));
+        }
+
         fileWriteOffset += sizeof(size_t) + bytesWritten;
         return std::error_code();
     }
@@ -369,7 +371,10 @@ private:
     template<typename = std::enable_if_t<UseDisk == true>>
     std::error_code refillImpl(char *ptr, size_t size)
     {
+        off_t offset = sizeof(size_t) + size;
+        offset = ::lseek(backupFile, -offset, SEEK_END);
         size_t bytesRead{0};
+
         do
         {
             ssize_t bytes = ::read(backupFile, ptr, size);
@@ -380,12 +385,7 @@ private:
             bytesRead += bytes;
         } while (bytesRead < size);
 
-        // TODO: fix me, bytesRead maybe not multiple of file block size
-        if (::fallocate(backupFile, FALLOC_FL_COLLAPSE_RANGE, 0, bytesRead) == -1)
-        {
-            return std::make_error_code(static_cast<std::errc>(errno));
-        }
-
+        writeOffset = offset;
         return std::error_code();
     }
 
