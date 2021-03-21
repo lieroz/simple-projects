@@ -13,9 +13,9 @@ template<bool UseDisk = true, typename... Args>
 class DiskRepository final
 {
 public:
-    DiskRepository(std::filesystem::path _filename, size_t size) noexcept : filename(_filename)
+    DiskRepository(std::filesystem::path _filename, size_t size) noexcept
+        : filename(_filename), pageSize(getpagesize())
     {
-        size_t pageSize = getpagesize();
         capacity = ((size / pageSize) + 1) * pageSize;
         writeBackBuffer.resize(capacity);
         writeBackBuffer.clear();
@@ -235,7 +235,7 @@ private:
         size_t typeSize = sizeof(value);
         if (writeBackBuffer.capacity() - offset < typeSize)
         {
-            writeBackBuffer.resize(writeBackBuffer.capacity() << 1);
+            writeBackBuffer.resize(writeBackBuffer.capacity() + pageSize);
         }
 
         const char *ptr = reinterpret_cast<const char *>(&value);
@@ -248,7 +248,8 @@ private:
     {
         if (writeBackBuffer.capacity() - offset < value.size())
         {
-            writeBackBuffer.resize(writeBackBuffer.capacity() << 1);
+            writeBackBuffer.resize(
+                writeBackBuffer.capacity() + ((value.size() / pageSize + 1) * pageSize));
         }
 
         fillWriteBackBuffer(value.size(), offset);
@@ -294,6 +295,7 @@ private:
 
 private:
     std::filesystem::path filename;
+    size_t pageSize{0};
     size_t capacity{0};
     size_t bufferSize{0};
     size_t writeOffset{0};

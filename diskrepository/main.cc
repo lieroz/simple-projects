@@ -27,7 +27,7 @@ int main()
     std::cout << repository.pull(data) << std::endl;
     std::cout << data << " " << data.size() << std::endl;
 
-    /* [[maybe_unused]] auto _f = repository.flush(std::string(5000, 'D')); */
+    [[maybe_unused]] auto _f = repository.flush(std::string(5000, 'D'));
 
     return 0;
 }
