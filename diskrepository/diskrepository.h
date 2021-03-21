@@ -140,7 +140,7 @@ public:
         return ec;
     }
 
-    [[nodiscard]] std::error_code flush(const Args &...args)
+    [[nodiscard]] std::error_code flush(const Args &...args) noexcept
     {
         size_t offset{0};
         (fillWriteBackBuffer(args, offset), ...);
@@ -149,7 +149,7 @@ public:
         return ec;
     }
 
-    void commit()
+    void commit() noexcept
     {
         bufferSize = 0;
         writeOffset = 0;
@@ -193,7 +193,7 @@ private:
     }
 
     template<typename T, typename = std::enable_if_t<std::is_integral_v<T>>>
-    [[nodiscard]] bool pullImpl(T &value, size_t &offset, size_t &size)
+    [[nodiscard]] bool pullImpl(T &value, size_t &offset, size_t &size) noexcept
     {
         size_t typeSize = sizeof(T);
         if (size < typeSize)
@@ -208,7 +208,7 @@ private:
         return true;
     }
 
-    [[nodiscard]] bool pullImpl(std::string &value, size_t &offset, size_t &size)
+    [[nodiscard]] bool pullImpl(std::string &value, size_t &offset, size_t &size) noexcept
     {
         size_t length{0};
         if (!pullImpl(length, offset, size))
@@ -230,7 +230,7 @@ private:
     }
 
     template<typename T, typename = std::enable_if_t<std::is_integral_v<T> && UseDisk == true>>
-    void fillWriteBackBuffer(const T &value, size_t &offset)
+    void fillWriteBackBuffer(const T &value, size_t &offset) noexcept
     {
         size_t typeSize = sizeof(value);
         if (writeBackBuffer.capacity() - offset < typeSize)
@@ -244,7 +244,7 @@ private:
     }
 
     template<typename = std::enable_if_t<UseDisk == true>>
-    void fillWriteBackBuffer(const std::string &value, size_t &offset)
+    void fillWriteBackBuffer(const std::string &value, size_t &offset) noexcept
     {
         if (writeBackBuffer.capacity() - offset < value.size())
         {
@@ -258,7 +258,7 @@ private:
     }
 
     template<typename = std::enable_if_t<UseDisk == true>>
-    std::error_code flushImpl(const uint8_t *ptr, size_t size)
+    std::error_code flushImpl(const uint8_t *ptr, size_t size) noexcept
     {
         if (backupFile == -1)
         {
@@ -283,7 +283,7 @@ private:
     }
 
     template<typename = std::enable_if_t<UseDisk == true>>
-    std::error_code refillImpl()
+    std::error_code refillImpl() noexcept
     {
         if (backupFile == -1)
         {
