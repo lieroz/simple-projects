@@ -6,7 +6,6 @@
 
 #include <cstring>
 #include <system_error>
-#include <string_view>
 #include <filesystem>
 
 template<bool UseDisk = true, typename... Args>
@@ -50,7 +49,7 @@ public:
             return std::make_error_code(static_cast<std::errc>(errno));
         }
 
-        if (mmap(buffer + bufferCapacity, bufferCapacity, PROT_READ | PROT_WRITE,
+        if (::mmap(buffer + bufferCapacity, bufferCapacity, PROT_READ | PROT_WRITE,
                 MAP_SHARED | MAP_FIXED, fd, 0) == MAP_FAILED)
         {
             return std::make_error_code(static_cast<std::errc>(errno));
