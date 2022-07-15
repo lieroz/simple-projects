@@ -1,0 +1,8 @@
+{
+    "cmake.configureOnOpen": true,
+    "cmake.generator": "Visual Studio 16 2019",
+    "files.associations": {
+        "filesystem": "cpp",
+        "memory": "cpp"
+    },
+}
