@@ -1,18 +1,30 @@
-cmake_minimum_required(VERSION 3.0)
-project(LearningRendering)
+﻿cmake_minimum_required(VERSION 3.8)
+
+project("RenderingASceneWithDeferredLighting")
 
 set(CMAKE_CXX_STANDARD 20)
 
-set(WIN_SOURCES
-    window_win.cpp
-    viddriver_d3d11.cpp
-)
-
-add_executable(main main.cpp)
+option(USE_D3D12 "Use DirectX 12 as a rendering backend" ON)
 
 if(WIN32)
-    add_library(commonlib ${WIN_SOURCES})
-    target_link_libraries(commonlib d3d11 d3dcompiler)
+	set(DISPLAY_SOURCES
+		display_win.cpp
+	)
 endif()
 
-target_link_libraries(main PRIVATE commonlib)
+if(USE_D3D12)
+    set(VIDDRIVER_SOURCES
+        viddriver_d3d12.cpp
+    )
+endif()
+
+add_executable(${PROJECT_NAME} main.cpp viddriver.h display.h)
+
+add_library(display ${DISPLAY_SOURCES})
+add_library(viddriver ${VIDDRIVER_SOURCES})
+
+if(USE_D3D12)
+	target_link_libraries(viddriver PRIVATE dxgi d3d12 dxcompiler)
+endif()
+
+target_link_libraries(${PROJECT_NAME} PRIVATE display viddriver)
