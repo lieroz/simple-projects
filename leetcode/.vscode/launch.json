@@ -1,0 +1,22 @@
+{
+	"version": "0.2.0",
+	"_comment": "Use expr var = value to set values in debugger",
+	"configurations": [
+		{
+			"type": "codelldb",
+			"request": "launch",
+			"name": "binsearch",
+			"preLaunchTask": "Compile",
+			"expressions": "native",
+			"program": "${workspaceFolder}/build/Debug/binsearch_tests.exe"
+		},
+		{
+			"type": "codelldb",
+			"request": "launch",
+			"name": "sliding_window",
+			"preLaunchTask": "Compile",
+			"expressions": "native",
+			"program": "${workspaceFolder}/build/Debug/sliding_window_tests.exe"
+		}
+	]
+}

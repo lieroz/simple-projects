@@ -1,0 +1,18 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+		{
+			"label": "Generate",
+			"type": "shell",
+			"command": "cmake -B ./build/ -S ."
+		},
+        {
+            "label": "Compile",
+            "type": "shell",
+			"command": "cmake --build ./build/",
+			"dependsOn": [
+				"Generate"
+			]
+        }
+    ]
+}
