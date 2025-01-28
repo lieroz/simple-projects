@@ -14,7 +14,11 @@ void test_empty_array()
 {
     int array[] = {};
     int value = 3;
+
     int result = binsearch(array, 0, sizeof(int), &value, &i_compare);
+    assert(result == -1);
+
+    result = binsearch_recursive(array, array, 0, sizeof(int), &value, &i_compare);
     assert(result == -1);
 }
 
@@ -22,7 +26,11 @@ void test_array_of_size_1_value_found()
 {
     int array[] = {1};
     int value = 1;
+
     int result = binsearch(array, sizeof(array) / sizeof(int), sizeof(int), &value, &i_compare);
+    assert(result == 0);
+
+    result = binsearch_recursive(array, array, sizeof(array) / sizeof(int), sizeof(int), &value, &i_compare);
     assert(result == 0);
 }
 
@@ -30,7 +38,11 @@ void test_array_of_size_1_lesser_value_not_found()
 {
     int array[] = {1};
     int value = 0;
+
     int result = binsearch(array, sizeof(array) / sizeof(int), sizeof(int), &value, &i_compare);
+    assert(result == -1);
+
+    result = binsearch_recursive(array, array, sizeof(array) / sizeof(int), sizeof(int), &value, &i_compare);
     assert(result == -1);
 }
 
@@ -38,7 +50,11 @@ void test_array_of_size_1_greater_value_not_found()
 {
     int array[] = {1};
     int value = 2;
+
     int result = binsearch(array, sizeof(array) / sizeof(int), sizeof(int), &value, &i_compare);
+    assert(result == -1);
+
+    result = binsearch_recursive(array, array, sizeof(array) / sizeof(int), sizeof(int), &value, &i_compare);
     assert(result == -1);
 }
 
@@ -46,7 +62,11 @@ void test_array_of_size_2_value_found()
 {
     int array[] = {1, 2};
     int value = 1;
+
     int result = binsearch(array, sizeof(array) / sizeof(int), sizeof(int), &value, &i_compare);
+    assert(result == 0);
+
+    result = binsearch_recursive(array, array, sizeof(array) / sizeof(int), sizeof(int), &value, &i_compare);
     assert(result == 0);
 }
 
@@ -54,7 +74,11 @@ void test_array_of_size_2_lesser_value_not_found()
 {
     int array[] = {1, 2};
     int value = 0;
+
     int result = binsearch(array, sizeof(array) / sizeof(int), sizeof(int), &value, &i_compare);
+    assert(result == -1);
+
+    result = binsearch_recursive(array, array, sizeof(array) / sizeof(int), sizeof(int), &value, &i_compare);
     assert(result == -1);
 }
 
@@ -62,7 +86,11 @@ void test_array_of_size_2_greater_value_not_found()
 {
     int array[] = {1, 2};
     int value = 3;
+
     int result = binsearch(array, sizeof(array) / sizeof(int), sizeof(int), &value, &i_compare);
+    assert(result == -1);
+
+    result = binsearch_recursive(array, array, sizeof(array) / sizeof(int), sizeof(int), &value, &i_compare);
     assert(result == -1);
 }
 
@@ -70,7 +98,11 @@ void test_value_found_array_size_even()
 {
     int array[] = {1, 2, 3, 4, 5, 6, 7, 8};
     int value = 3;
+
     int result = binsearch(array, sizeof(array) / sizeof(int), sizeof(int), &value, &i_compare);
+    assert(result == 2);
+
+    result = binsearch_recursive(array, array, sizeof(array) / sizeof(int), sizeof(int), &value, &i_compare);
     assert(result == 2);
 }
 
@@ -78,7 +110,11 @@ void test_value_found_array_size_odd()
 {
     int array[] = {1, 2, 3, 4, 5, 6, 7};
     int value = 3;
+
     int result = binsearch(array, sizeof(array) / sizeof(int), sizeof(int), &value, &i_compare);
+    assert(result == 2);
+
+    result = binsearch_recursive(array, array, sizeof(array) / sizeof(int), sizeof(int), &value, &i_compare);
     assert(result == 2);
 }
 
@@ -86,7 +122,11 @@ void test_lesser_value_not_found_array_size_even()
 {
     int array[] = {1, 2, 3, 4, 5, 6, 7, 8};
     int value = 0;
+
     int result = binsearch(array, sizeof(array) / sizeof(int), sizeof(int), &value, &i_compare);
+    assert(result == -1);
+
+    result = binsearch_recursive(array, array, sizeof(array) / sizeof(int), sizeof(int), &value, &i_compare);
     assert(result == -1);
 }
 
@@ -94,7 +134,11 @@ void test_lesser_value_not_found_array_size_odd()
 {
     int array[] = {1, 2, 3, 4, 5, 6, 7};
     int value = 0;
+
     int result = binsearch(array, sizeof(array) / sizeof(int), sizeof(int), &value, &i_compare);
+    assert(result == -1);
+
+    result = binsearch_recursive(array, array, sizeof(array) / sizeof(int), sizeof(int), &value, &i_compare);
     assert(result == -1);
 }
 
@@ -102,7 +146,11 @@ void test_greater_value_not_found_array_size_even()
 {
     int array[] = {1, 2, 3, 4, 5, 6, 7, 8};
     int value = 9;
+
     int result = binsearch(array, sizeof(array) / sizeof(int), sizeof(int), &value, &i_compare);
+    assert(result == -1);
+
+    result = binsearch_recursive(array, array, sizeof(array) / sizeof(int), sizeof(int), &value, &i_compare);
     assert(result == -1);
 }
 
@@ -110,7 +158,11 @@ void test_greater_value_not_found_array_size_odd()
 {
     int array[] = {1, 2, 3, 4, 5, 6, 7};
     int value = 8;
+
     int result = binsearch(array, sizeof(array) / sizeof(int), sizeof(int), &value, &i_compare);
+    assert(result == -1);
+
+    result = binsearch_recursive(array, array, sizeof(array) / sizeof(int), sizeof(int), &value, &i_compare);
     assert(result == -1);
 }
 

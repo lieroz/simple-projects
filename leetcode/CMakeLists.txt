@@ -6,16 +6,24 @@ set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_EXTENSIONS OFF)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
-add_library(core core/binsearch.c)
+set(CORE_SOURCES
+	core/binsearch.c
+	core/sliding_window.c
+)
+
+add_library(core ${CORE_SOURCES})
 
 set(LIBS core)
 
 enable_testing()
 
 set(TESTS
-	binsearch)
+	binsearch
+	sliding_window
+)
 
 set(binsearch_parts 1 2 3 4 5 6 7 8 9 10 11 12 13)
+set(sliding_window_parts 1 2 3)
 
 foreach(TEST ${TESTS})
 	add_executable(${TEST}_tests tests/${TEST}.c)
