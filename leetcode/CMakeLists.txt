@@ -9,6 +9,8 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CORE_SOURCES
 	core/binsearch.c
 	core/sliding_window.c
+	core/dfs.c
+	core/bfs.c
 )
 
 add_library(core ${CORE_SOURCES})
@@ -20,10 +22,12 @@ enable_testing()
 set(TESTS
 	binsearch
 	sliding_window
+	dfs
 )
 
 set(binsearch_parts 1 2 3 4 5 6 7 8 9 10 11 12 13)
 set(sliding_window_parts 1 2 3 4 5 6 7 8 9 10 11 12)
+set(dfs_parts 1 2)
 
 foreach(TEST ${TESTS})
 	add_executable(${TEST}_tests tests/${TEST}.c)

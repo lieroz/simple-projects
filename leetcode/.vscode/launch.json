@@ -17,6 +17,14 @@
 			"preLaunchTask": "Compile",
 			"expressions": "native",
 			"program": "${workspaceFolder}/build/Debug/sliding_window_tests.exe"
+		},
+		{
+			"type": "codelldb",
+			"request": "launch",
+			"name": "dfs",
+			"preLaunchTask": "Compile",
+			"expressions": "native",
+			"program": "${workspaceFolder}/build/Debug/dfs_tests.exe"
 		}
 	]
 }

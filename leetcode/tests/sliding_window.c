@@ -55,42 +55,45 @@ void test7()
 
 void test8()
 {
-	int array[] = {15, 2, 4, 8, 9, 5, 10, 23};
-	int indexes[2];
-	find_subarray_with_given_sum_in_an_array_of_non_negative_integers(array, sizeof(array) / sizeof(array[0]), 23, indexes);
-	assert(indexes[0] == 1 && indexes[1] == 5);
+    int array[] = {15, 2, 4, 8, 9, 5, 10, 23};
+    int indexes[2];
+    find_subarray_with_given_sum_in_an_array_of_non_negative_integers(array, sizeof(array) / sizeof(array[0]), 23,
+                                                                      indexes);
+    assert(indexes[0] == 1 && indexes[1] == 5);
 }
 
 void test9()
 {
-	int array[] = {1, 10, 4, 0, 3, 5};
-	int indexes[2];
-	find_subarray_with_given_sum_in_an_array_of_non_negative_integers(array, sizeof(array) / sizeof(array[0]), 7, indexes);
-	assert(indexes[0] == 2 && indexes[1] == 5);
+    int array[] = {1, 10, 4, 0, 3, 5};
+    int indexes[2];
+    find_subarray_with_given_sum_in_an_array_of_non_negative_integers(array, sizeof(array) / sizeof(array[0]), 7,
+                                                                      indexes);
+    assert(indexes[0] == 2 && indexes[1] == 5);
 }
 
 void test10()
 {
-	int array[] = {1, 4};
-	int indexes[2];
-	find_subarray_with_given_sum_in_an_array_of_non_negative_integers(array, sizeof(array) / sizeof(array[0]), 0, indexes);
-	assert(indexes[0] == -1 && indexes[1] == -1);
+    int array[] = {1, 4};
+    int indexes[2];
+    find_subarray_with_given_sum_in_an_array_of_non_negative_integers(array, sizeof(array) / sizeof(array[0]), 0,
+                                                                      indexes);
+    assert(indexes[0] == -1 && indexes[1] == -1);
 }
 
 void test11()
 {
-	char* str = "aabcbcdbca";
-	int indexes[2];
-	find_smallest_window_that_contains_all_characters_of_string_itself(str, strlen(str), indexes);
-	assert(indexes[0] == 6 && indexes[1] == 10);
+    char *str = "aabcbcdbca";
+    int indexes[2];
+    find_smallest_window_that_contains_all_characters_of_string_itself(str, strlen(str), indexes);
+    assert(indexes[0] == 6 && indexes[1] == 10);
 }
 
 void test12()
 {
-	char* str = "aaab";
-	int indexes[2];
-	find_smallest_window_that_contains_all_characters_of_string_itself(str, strlen(str), indexes);
-	assert(indexes[0] == 2 && indexes[1] == 4);
+    char *str = "aaab";
+    int indexes[2];
+    find_smallest_window_that_contains_all_characters_of_string_itself(str, strlen(str), indexes);
+    assert(indexes[0] == 2 && indexes[1] == 4);
 }
 
 int main(int argc, char *argv[])
