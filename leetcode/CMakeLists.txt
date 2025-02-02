@@ -23,7 +23,7 @@ set(TESTS
 )
 
 set(binsearch_parts 1 2 3 4 5 6 7 8 9 10 11 12 13)
-set(sliding_window_parts 1 2 3)
+set(sliding_window_parts 1 2 3 4 5 6 7 8 9 10 11 12)
 
 foreach(TEST ${TESTS})
 	add_executable(${TEST}_tests tests/${TEST}.c)
