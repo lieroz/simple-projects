@@ -44,10 +44,12 @@ endforeach()
 set(PROBLEMS
 	35
 	69
+	1763
 )
 
 set(35_parts 1 2 3 4)
 set(69_parts 1 2 3 4)
+set(1763_parts 1 2 3)
 
 foreach(PROBLEM ${PROBLEMS})
 	add_executable(${PROBLEM}_problem problems/${PROBLEM}.c)

@@ -25,6 +25,30 @@
 			"preLaunchTask": "Compile",
 			"expressions": "native",
 			"program": "${workspaceFolder}/build/Debug/dfs_tests.exe"
+		},
+		{
+			"type": "codelldb",
+			"request": "launch",
+			"name": "35",
+			"preLaunchTask": "Compile",
+			"expressions": "native",
+			"program": "${workspaceFolder}/build/Debug/35_problem.exe"
+		},
+		{
+			"type": "codelldb",
+			"request": "launch",
+			"name": "69",
+			"preLaunchTask": "Compile",
+			"expressions": "native",
+			"program": "${workspaceFolder}/build/Debug/69_problem.exe"
+		},
+		{
+			"type": "codelldb",
+			"request": "launch",
+			"name": "1763",
+			"preLaunchTask": "Compile",
+			"expressions": "native",
+			"program": "${workspaceFolder}/build/Debug/1763_problem.exe"
 		}
 	]
 }
