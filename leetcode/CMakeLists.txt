@@ -10,7 +10,6 @@ set(CORE_SOURCES
 	core/binsearch.c
 	core/sliding_window.c
 	core/dfs.c
-	core/bfs.c
 )
 
 add_library(core ${CORE_SOURCES})
@@ -39,5 +38,22 @@ foreach(TEST ${TESTS})
 	endif()
 	foreach(PART ${${TEST}_parts})
 		add_test(NAME ${TEST}_test_${PART} COMMAND $<TARGET_FILE:${TEST}_tests> ${PART})
+	endforeach()
+endforeach()
+
+set(PROBLEMS
+	35
+)
+
+set(35_parts 1 2 3 4)
+
+foreach(PROBLEM ${PROBLEMS})
+	add_executable(${PROBLEM}_problem problems/${PROBLEM}.c)
+
+	if(NOT DEFINED "${PROBLEM}_parts")
+		set(${PROBLEM}_parts "1")
+	endif()
+	foreach(PART ${${PROBLEM}_parts})
+		add_test(NAME ${PROBLEM}_problem_${PART} COMMAND $<TARGET_FILE:${PROBLEM}_problem> ${PART})
 	endforeach()
 endforeach()
