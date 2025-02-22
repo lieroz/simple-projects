@@ -49,6 +49,23 @@
 			"preLaunchTask": "Compile",
 			"expressions": "native",
 			"program": "${workspaceFolder}/build/Debug/1763_problem.exe"
+		},
+		{
+			"type": "codelldb",
+			"request": "launch",
+			"name": "100",
+			"preLaunchTask": "Compile",
+			"expressions": "native",
+			"program": "${workspaceFolder}/build/Debug/100_problem.exe"
+		},
+		{
+			"type": "codelldb",
+			"request": "launch",
+			"name": "94",
+			"preLaunchTask": "Compile",
+			"expressions": "native",
+			"program": "${workspaceFolder}/build/Debug/94_problem.exe"
 		}
+
 	]
 }
