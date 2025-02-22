@@ -47,6 +47,7 @@ set(PROBLEMS
 	1763
 	100
 	94
+	101
 )
 
 set(35_parts 1 2 3 4)
@@ -54,6 +55,7 @@ set(69_parts 1 2 3 4)
 set(1763_parts 1 2 3)
 set(100_parts 1 2 3)
 set(94_parts 1 2 3 4)
+set(101_parts 1 2)
 
 foreach(PROBLEM ${PROBLEMS})
 	add_executable(${PROBLEM}_problem problems/${PROBLEM}.c)
