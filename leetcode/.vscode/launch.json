@@ -5,114 +5,27 @@
 		{
 			"type": "codelldb",
 			"request": "launch",
-			"name": "binsearch",
-			"preLaunchTask": "Compile",
+			"name": "Debug Parse",
+			"preLaunchTask": "Compile Parser",
 			"expressions": "native",
-			"program": "${workspaceFolder}/build/Debug/binsearch_tests.exe"
+			"program": "${workspaceFolder}/parser/build/parser.exe",
+			"args": ["${workspaceFolder}/problems/104.c"]
 		},
 		{
 			"type": "codelldb",
 			"request": "launch",
-			"name": "sliding_window",
+			"name": "Debug Test",
 			"preLaunchTask": "Compile",
 			"expressions": "native",
-			"program": "${workspaceFolder}/build/Debug/sliding_window_tests.exe"
+			"program": "${workspaceFolder}/build/Debug/${fileBasenameNoExtension}_tests.exe"
 		},
 		{
 			"type": "codelldb",
 			"request": "launch",
-			"name": "dfs",
+			"name": "Debug Problem",
 			"preLaunchTask": "Compile",
 			"expressions": "native",
-			"program": "${workspaceFolder}/build/Debug/dfs_tests.exe"
-		},
-		{
-			"type": "codelldb",
-			"request": "launch",
-			"name": "35",
-			"preLaunchTask": "Compile",
-			"expressions": "native",
-			"program": "${workspaceFolder}/build/Debug/35_problem.exe"
-		},
-		{
-			"type": "codelldb",
-			"request": "launch",
-			"name": "69",
-			"preLaunchTask": "Compile",
-			"expressions": "native",
-			"program": "${workspaceFolder}/build/Debug/69_problem.exe"
-		},
-		{
-			"type": "codelldb",
-			"request": "launch",
-			"name": "1763",
-			"preLaunchTask": "Compile",
-			"expressions": "native",
-			"program": "${workspaceFolder}/build/Debug/1763_problem.exe"
-		},
-		{
-			"type": "codelldb",
-			"request": "launch",
-			"name": "100",
-			"preLaunchTask": "Compile",
-			"expressions": "native",
-			"program": "${workspaceFolder}/build/Debug/100_problem.exe"
-		},
-		{
-			"type": "codelldb",
-			"request": "launch",
-			"name": "94",
-			"preLaunchTask": "Compile",
-			"expressions": "native",
-			"program": "${workspaceFolder}/build/Debug/94_problem.exe"
-		},
-		{
-			"type": "codelldb",
-			"request": "launch",
-			"name": "101",
-			"preLaunchTask": "Compile",
-			"expressions": "native",
-			"program": "${workspaceFolder}/build/Debug/101_problem.exe"
-		},
-		{
-			"type": "codelldb",
-			"request": "launch",
-			"name": "104",
-			"preLaunchTask": "Compile",
-			"expressions": "native",
-			"program": "${workspaceFolder}/build/Debug/104_problem.exe"
-		},
-		{
-			"type": "codelldb",
-			"request": "launch",
-			"name": "219",
-			"preLaunchTask": "Compile",
-			"expressions": "native",
-			"program": "${workspaceFolder}/build/Debug/219_problem.exe"
-		},
-		{
-			"type": "codelldb",
-			"request": "launch",
-			"name": "594",
-			"preLaunchTask": "Compile",
-			"expressions": "native",
-			"program": "${workspaceFolder}/build/Debug/594_problem.exe"
-		},
-		{
-			"type": "codelldb",
-			"request": "launch",
-			"name": "222",
-			"preLaunchTask": "Compile",
-			"expressions": "native",
-			"program": "${workspaceFolder}/build/Debug/222_problem.exe"
-		},
-		{
-			"type": "codelldb",
-			"request": "launch",
-			"name": "643",
-			"preLaunchTask": "Compile",
-			"expressions": "native",
-			"program": "${workspaceFolder}/build/Debug/643_problem.exe"
+			"program": "${workspaceFolder}/build/Debug/${fileBasenameNoExtension}_problem.exe"
 		}
 	]
 }

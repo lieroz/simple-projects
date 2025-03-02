@@ -38,7 +38,7 @@ int *inorderTraversal(struct TreeNode *root, int *returnSize)
 
     inorder_traversal(root, returnSize, temp);
 
-	int size = *returnSize * sizeof(int);
+    int size = *returnSize * sizeof(int);
     int *result = malloc(size);
     memcpy_s(result, size, temp, size);
     return result;
@@ -115,12 +115,7 @@ void test3()
     int count = 0;
     int *result = inorderTraversal(NULL, &count);
 
-    assert(count == sizeof(ref) / sizeof(int));
-
-    for (int i = 0; i < count; i++)
-    {
-        assert(ref[i] == result[i]);
-    }
+    assert(count == 0);
 }
 
 void test4()

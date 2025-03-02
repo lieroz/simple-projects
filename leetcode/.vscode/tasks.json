@@ -2,6 +2,19 @@
     "version": "2.0.0",
     "tasks": [
 		{
+			"label": "Generate Parser",
+			"type": "shell",
+			"command": "cmake -B ./parser/build/ -S ./parser/"
+		},
+        {
+            "label": "Compile Parser",
+            "type": "shell",
+			"command": "cmake --build ./parser/build/",
+			"dependsOn": [
+				"Generate Parser"
+			]
+        },
+		{
 			"label": "Generate",
 			"type": "shell",
 			"command": "cmake -B ./build/ -S ."

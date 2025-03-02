@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
         test11();
         break;
     case 12:
-        test11();
+        test12();
         break;
     default:
         printf("Test #%d doesn't exist.\n", choice);

@@ -92,7 +92,7 @@ void test2()
     struct TreeNode *left1 = insert(root1, 2);
 
     struct TreeNode *root2 = insert(NULL, 1);
-    struct TreeNode *left2 = insert(root2, NULL);
+    struct TreeNode *left2 = insert(root2, 0);
     struct TreeNode *right2 = insert(root2, 2);
 
     assert(isSameTree(root1, root2) == 0);
