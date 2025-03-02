@@ -20,46 +20,32 @@ set(LIBS core)
 
 enable_testing()
 
-set(TESTS
-	binsearch
-	sliding_window
-	dfs
-)
+aux_source_directory(tests TEST_FILES)
 
-foreach(TEST ${TESTS})
-	add_executable(${TEST}_tests tests/${TEST}.c)
-	target_link_libraries(${TEST}_tests PRIVATE ${LIBS})
-	target_include_directories(${TEST}_tests PRIVATE ${LIBS})
+foreach(TEST_FILE ${TEST_FILES})
+	get_filename_component(TEST_NAME ${TEST_FILE} NAME_WE)
 
-	execute_process(COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/parser/build/parser.exe ${CMAKE_CURRENT_SOURCE_DIR}/tests/${TEST}.c COMMAND_ECHO STDOUT OUTPUT_VARIABLE TEST_PARTS)
+	add_executable(${TEST_NAME}_tests ${TEST_FILE})
+	target_link_libraries(${TEST_NAME}_tests PRIVATE ${LIBS})
+	target_include_directories(${TEST_NAME}_tests PRIVATE ${LIBS})
+
+	execute_process(COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/parser/build/parser.exe ${CMAKE_CURRENT_SOURCE_DIR}/${TEST_FILE} COMMAND_ECHO STDOUT OUTPUT_VARIABLE TEST_PARTS)
 
 	foreach(PART ${TEST_PARTS})
-		add_test(NAME ${TEST}_test_${PART} COMMAND $<TARGET_FILE:${TEST}_tests> ${PART})
+		add_test(NAME ${TEST_NAME}_test_${PART} COMMAND $<TARGET_FILE:${TEST_NAME}_tests> ${PART})
 	endforeach()
 endforeach()
 
-message(WARNING "Add output generation without source files in CMakeLists.txt")
+aux_source_directory(problems PROBLEM_FILES)
 
-set(PROBLEMS
-	35
-	69
-	1763
-	100
-	94
-	101
-	104
-	219
-	594
-	222
-	643
-)
+foreach(PROBLEM_FILE ${PROBLEM_FILES})
+	get_filename_component(PROBLEM_NAME ${PROBLEM_FILE} NAME_WE)
 
-foreach(PROBLEM ${PROBLEMS})
-	add_executable(${PROBLEM}_problem problems/${PROBLEM}.c)
+	add_executable(${PROBLEM_NAME}_problem ${PROBLEM_FILE})
 
-	execute_process(COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/parser/build/parser.exe ${CMAKE_CURRENT_SOURCE_DIR}/problems/${PROBLEM}.c COMMAND_ECHO STDOUT OUTPUT_VARIABLE PROBLEM_PARTS)
+	execute_process(COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/parser/build/parser.exe ${CMAKE_CURRENT_SOURCE_DIR}/${PROBLEM_FILE} COMMAND_ECHO STDOUT OUTPUT_VARIABLE PROBLEM_PARTS)
 
 	foreach(PART ${PROBLEM_PARTS})
-		add_test(NAME ${PROBLEM}_problem_${PART} COMMAND $<TARGET_FILE:${PROBLEM}_problem> ${PART})
+		add_test(NAME ${PROBLEM_NAME}_problem_${PART} COMMAND $<TARGET_FILE:${PROBLEM_NAME}_problem> ${PART})
 	endforeach()
 endforeach()
